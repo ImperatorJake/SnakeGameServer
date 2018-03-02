@@ -54,11 +54,10 @@ app.post('/postToSession', (req, res) => {
     if (highscores.every((score) => { return score < req.body.highscore })) {
       if (highscores.length < 3) {
         highscores.push(req.body.highscore);
-        console.log('Added a high score of : '+req.body.highscore);
       } else {
         highscores[highscores.indexOf(Math.min(...highscores))] = req.body.highscore;
-        console.log('Added a high score of : '+req.body.highscore);
       }
+      console.log('Added a high score of : '+req.body.highscore);
     }
     highscores = highscores.sort((score1, score2) => { return score2 - score1; });
     req.session.highscores = highscores;
