@@ -2,7 +2,7 @@ console.log('Game Server is running...');
 
 var publicIp = require('public-ip');
 var path = require('path');
-var port = 4000;
+var port = 80;
 var highscores = [];
 
 var express = require('express');
@@ -23,13 +23,14 @@ app.use(body_parser.urlencoded({
 
 app.use(body_parser.json());
 
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'http://'+(require('my-local-ip')())+':'+port+'/');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  next();
-});
+// this section is only required when viewing the game on locolhost:port
+// app.use((req, res, next) => {
+//   res.setHeader('Access-Control-Allow-Origin', 'http://'+(require('my-local-ip')())+':'+port+'/');
+//   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+//   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+//   res.setHeader('Access-Control-Allow-Credentials', true);
+//   next();
+// });
 
 app.use(express.static(path.join(__dirname, '../../p5Projects/SnakeGame/')));
 
@@ -67,7 +68,9 @@ app.post('/postToSession', (req, res) => {
 });
 
 app.listen(port, '0.0.0.0', () => {
+  // Local Address added for easy lan connection
   console.log('Listening on port '+port+'...');
-  publicIp.v4().then(ip => console.log('Public Address: '+'http://'+ip+':'+port));
+  // public ip is depricated! use ngrok tunneler instead
+  // publicIp.v4().then(ip => console.log('Public Address: '+'http://'+ip+':'+port));
   console.log('Local Address: '+'http://'+require('my-local-ip')()+':'+port);
 })
