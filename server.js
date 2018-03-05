@@ -1,14 +1,15 @@
 console.log('Game Server is running...');
 
-var publicIp = require('public-ip');
-var path = require('path');
-var port = 80;
+const port = 4000;
+const path = require('path');
+const ngrok = require('ngrok');
+const localAddress = require('my-local-ip')();
 var highscores = [];
 
-var express = require('express');
-var session = require('express-session');
-var body_parser = require('body-parser');
-var app = express();
+const express = require('express');
+const session = require('express-session');
+const body_parser = require('body-parser');
+const app = express();
 
 app.use(session({
   secret: 'Much Secret',
@@ -25,7 +26,7 @@ app.use(body_parser.json());
 
 // this section is only required when viewing the game on locolhost:port
 // app.use((req, res, next) => {
-//   res.setHeader('Access-Control-Allow-Origin', 'http://'+(require('my-local-ip')())+':'+port+'/');
+//   res.setHeader('Access-Control-Allow-Origin', 'http://'+localAddress+':'+port+'/');
 //   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 //   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
 //   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -68,9 +69,16 @@ app.post('/postToSession', (req, res) => {
 });
 
 app.listen(port, '0.0.0.0', () => {
-  // Local Address added for easy lan connection
   console.log('Listening on port '+port+'...');
-  // public ip is depricated! use ngrok tunneler instead
-  // publicIp.v4().then(ip => console.log('Public Address: '+'http://'+ip+':'+port));
-  console.log('Local Address: '+'http://'+require('my-local-ip')()+':'+port);
-})
+  // Prints Local Address url
+  console.log('Local Address: '+'http://'+localAddress+':'+port);
+  // Start Tunneler, Prints Tunnel Address url
+  (async () => {
+    var url = await ngrok.connect(port, (err, url) => {
+      if (err) {
+        console.log('Something went wrong with ngrok: '+err);
+      }
+    });
+    console.log('Tunnel Address: '+url);
+  })();
+});
