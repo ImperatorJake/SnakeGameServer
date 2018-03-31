@@ -4,6 +4,8 @@ const port = 4000;
 const path = require('path');
 const ngrok = require('ngrok');
 const localAddress = require('my-local-ip')();
+
+const scorelimit = 3;
 var highscores = [];
 
 const express = require('express');
@@ -52,19 +54,21 @@ app.get('/getSession', (req, res) => {
 
 app.post('/postToSession', (req, res) => {
   console.log('POST');
-  if (req.body.highscore) {
-    if (highscores.every((score) => { return score < req.body.highscore })) {
-      if (highscores.length < 3) {
-        highscores.push(req.body.highscore);
+    if (req.body.highscore &&
+	     (highscores.every((score) => { return score < req.body.highscore }) ||
+       (highscores.length === 0))) {
+      if (highscores.length < scorelimit) {
+          highscores.push(req.body.highscore);
       } else {
-        highscores[highscores.indexOf(Math.min(...highscores))] = req.body.highscore;
+          highscores[scorelimit-1] = req.body.highscore;
       }
-      console.log('Added a high score of : '+req.body.highscore);
+      console.log('Added a Highscore of: '+req.body.highscore);
+      highscores = highscores.sort((score1, score2) => { return score2 - score1; });
+      req.session.highscores = highscores;
+      res.send(req.session);
+    } else {
+      console.log('Score Rejected!');
     }
-    highscores = highscores.sort((score1, score2) => { return score2 - score1; });
-    req.session.highscores = highscores;
-    res.send(req.session);
-  }
   res.end();
 });
 
