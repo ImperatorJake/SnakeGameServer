@@ -54,21 +54,21 @@ app.get('/getSession', (req, res) => {
 
 app.post('/postToSession', (req, res) => {
   console.log('POST');
-    if (req.body.highscore &&
-	     (highscores.every((score) => { return score < req.body.highscore }) ||
-       (highscores.length === 0))) {
-      if (highscores.length < scorelimit) {
-          highscores.push(req.body.highscore);
-      } else {
-          highscores[scorelimit-1] = req.body.highscore;
-      }
-      console.log('Added a Highscore of: '+req.body.highscore);
-      highscores = highscores.sort((score1, score2) => { return score2 - score1; });
-      req.session.highscores = highscores;
-      res.send(req.session);
+  if (req.body.highscore &&
+	   (highscores.every((score) => { return score < req.body.highscore }) ||
+     (highscores.length === 0))) {
+    if (highscores.length < scorelimit) {
+        highscores.push(req.body.highscore);
     } else {
-      console.log('Score Rejected!');
+      highscores[scorelimit-1] = req.body.highscore;
     }
+    console.log('Added a Highscore of: '+req.body.highscore);
+    highscores = highscores.sort((score1, score2) => { return score2 - score1; });
+    req.session.highscores = highscores;
+    res.send(req.session);
+  } else {
+    console.log('Score Rejected!');
+  }
   res.end();
 });
 
